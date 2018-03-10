@@ -1,0 +1,13 @@
+click==6.7
+Django==1.11.11
+djangorestframework==3.6.3
+Jinja2==2.10
+livereload==2.5.1
+Markdown==2.6.11
+MarkupSafe==1.0
+mkdocs==0.17.3
+python-dotenv==0.8.2
+pytz==2018.3
+PyYAML==3.12
+six==1.11.0
+tornado==4.5.3
