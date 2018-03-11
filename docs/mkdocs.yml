@@ -1,4 +1,6 @@
 site_name: Analytics
 pages:
     - Home: index.md
+    - Course: course.md
+    - Student: student.md
 theme: readthedocs
