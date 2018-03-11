@@ -1,0 +1,168 @@
+{% verbatim %}
+<!DOCTYPE html>
+<html>
+    <head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width,initial-scale=1.0">
+	<title> Dashboard </title>
+	<link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.18.0/axios.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.5.14/vue.min.js"></script>
+    </head>
+    <body>
+
+	<div id="app" class="container">
+
+	    <div>
+		<div v-for="error in errors" class="alert alert-danger">
+		    {{ error[0] }}
+		</div>
+		<a class="btn btn-danger float-right ml-1" href='/logout'> Logout </a>
+		<a class="btn btn-danger float-right ml-1" href='/change-password'> Change password </a>
+	    </div>
+
+	    <h2> Courses </h2>
+
+	    <input type="text" id="name" v-model=course_name placeholder="Name"> </input>
+	    <button type="button"
+		    @click="add_course()"
+		    class="btn-success btn">
+		Add course
+	    </button>
+
+
+	    <div v-for="course in courses">
+		<div>
+		    <h2> {{ course.name }}
+			<button @click="delete_course(course.id)"
+				class="btn btn-danger float-right">
+			    Delete course
+			</button>
+		    </h2>
+		</div>
+		<table class="table">
+		    <tr v-for="student in course.enrolled_students">
+			<td> {{ student.first_name }} {{ student.last_name }} </td>
+			<td>
+			    <button type="button"
+				    @click="remove_student(course.id, student.id)"
+				    class="btn-danger btn">
+				Remove
+			    </button>
+			    <button type="button"
+				    @click="delete_student(student.id)"
+				    class="btn-danger btn">
+				Delete student
+			    </button>
+			</td>
+		    </tr>
+		    <tr v-for="student in course.unregistered_students">
+			<td> {{ student.first_name }} {{ student.last_name }} </td>
+			<td>
+			    <button type="button"
+				    @click="add_student(course.id, student.id)"
+				    class="btn-success btn">
+				Add
+			    </button>
+			    <button type="button"
+				    @click="delete_student(student.id)"
+				    class="btn-danger btn">
+				Delete student
+			    </button>
+			</td>
+		    </tr>
+		</table>
+	    </div>
+	</div>
+
+	<script type="text/javascript">
+	 var app = new Vue({
+	     el: '#app',
+	     data: {
+		 'errors': [],
+		 'courses': [],
+		 'course_name': ''
+	     },
+	     created: function() {
+		 this.get_courses();
+	     },
+	     methods: {
+		 delete_course: function (course_id, event) {
+		     var url = '/api/courses/' + course_id.toString();
+		     var self = this;
+		     axios.delete(url)
+			  .then(function (response) {
+			      self.get_courses();
+			      self.errors = [];
+			  }).catch(function (error) {
+			      self.errors = Object.values(error.response.data);
+			  });
+		 },
+		 delete_student: function (student_id, event) {
+		     var url = '/api/users/' + student_id.toString();
+		     var self = this;
+		     axios.delete(url)
+			  .then(function (response) {
+			      self.get_courses();
+			      self.errors = [];
+			  }).catch(function (error) {
+			      self.errors = Object.values(error.response.data);
+			  });
+		 },
+		 add_course: function(event) {
+		     var url = '/api/courses/';
+		     var self = this;
+		     axios.post(url, {
+			 name: self.course_name
+		     }).then(function (response) {
+			 self.get_courses();
+			 self.course_name = '';
+			 self.errors = [];
+		     }).catch(function (error) {
+			 self.errors = Object.values(error.response.data);
+		     });
+		 },
+		 add_student: function (course_id, student_id, event) {
+		     var base_url = '/api/courses/';
+		     var url = 'add_user/';
+		     var self = this;
+		     axios.post(base_url + url, {
+			 course_id: course_id,
+			 student_id: student_id,
+		     }).then(function (response) {
+			 self.get_courses();
+			 self.errors = [];
+		     }).catch(function (error) {
+			 self.errors = Object.values(error.response.data);
+		     });
+		 },
+		 remove_student: function (course_id, student_id, event) {
+		     var base_url = '/api/courses/';
+		     var url = 'remove_user/';
+		     var self = this;
+		     axios.post(base_url + url, {
+			 course_id: course_id,
+			 student_id: student_id
+		     }).then(function (response) {
+			 self.get_courses();
+			 self.errors = [];
+		     }).catch(function (error) {
+			 self.errors = Object.values(error.response.data);
+		     });
+		 },
+		 get_courses: function (event) {
+		     var url = '/api/courses/';
+		     var self = this;
+		     axios.get(url).then(function (response) {
+			 self.courses = response.data;
+			 self.errors = [];
+		     }).catch(function (error) {
+			 self.errors = Object.values(error.response.data);
+		     });
+		 }
+	     }
+	 })
+	</script>
+    </body>
+</html>
+{% endverbatim %}

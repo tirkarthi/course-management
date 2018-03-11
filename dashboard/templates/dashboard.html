@@ -1,0 +1,111 @@
+{% verbatim %}
+<!DOCTYPE html>
+<html>
+    <head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width,initial-scale=1.0">
+	<title> Dashboard </title>
+	<link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.18.0/axios.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.5.14/vue.min.js"></script>
+    </head>
+    <body>
+
+	<div id="app" class="container">
+
+	    <div>
+		<div v-for="error in errors" class="alert alert-danger">
+		    {{ error[0] }}
+		</div>
+		<a class="btn btn-primary float-right ml-1" href='/logout'> Logout </a>
+		<a class="btn btn-primary float-right ml-1" href='/change-password'> Change password </a>
+	    </div>
+
+
+	    <h2> Available courses </h2>
+
+	    <table class="table table-hover" v-if="available.length">
+		<tr v-for="course in available">
+		    <td> {{ course.name }} </td>
+		    <td>
+			<button type="button"
+				@click="enroll_course(course.availability, course.id)"
+				class="btn-success btn">
+			    Enroll
+			</button>
+		    </td>
+		</tr>
+	    </table>
+	    <p v-else> No available courses </p>
+
+	    <h2> Enrolled courses </h2>
+
+	    <table class="table table-hover" v-if="enrolled.length">
+		<tr v-for="course in enrolled">
+		    <td> {{ course.name }} </td>
+		    <td>
+			<button type="button"
+				@click="cancel_course(course.availability, course.id)"
+				class="btn-danger btn">
+			    Cancel
+			</button>
+		    </td>
+		</tr>
+	    </table>
+	    <p v-else> No enrolled courses </p>
+	</div>
+
+	<script type="text/javascript">
+	 var BASE_URL = '/api/users/';
+	 var app = new Vue({
+	     el: '#app',
+	     data: {
+		 'errors': [],
+		 'available': [],
+		 'enrolled': [],
+	     },
+	     created: function() {
+		 this.get_courses();
+	     },
+	     methods: {
+		 enroll_course: function (availability, course_id, event) {
+		     var url = 'enroll_course/';
+		     var self = this;
+		     axios.post(BASE_URL + url, {
+			 course: course_id,
+		     }).then(function (response) {
+			 self.get_courses();
+			 self.errors = [];
+		     }).catch(function (error) {
+			 self.errors = Object.values(error.response.data);
+		     });
+		 },
+		 cancel_course: function (availability, course_id, event) {
+		     var url = 'cancel_course/';
+		     var self = this;
+		     axios.post(BASE_URL + url, {
+			 course: course_id,
+		     }).then(function (response) {
+			 self.get_courses();
+			 self.errors = [];
+		     }).catch(function (error) {
+			 self.errors = Object.values(error.response.data);
+		     });
+		 },
+		 get_courses: function (event) {
+		     var url = 'courses/';
+		     var self = this;
+		     axios.get(BASE_URL + url).then(function (response) {
+			 self.enrolled = response.data.enrolled;
+			 self.available = response.data.available;
+			 self.errors = [];
+		     }).catch(function (error) {
+			 self.errors = Object.values(error.response.data);
+		     });
+		 }
+	     }
+	 })
+	</script>
+    </body>
+</html>
+{% endverbatim %}
