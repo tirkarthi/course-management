@@ -1,0 +1,17 @@
+language: python
+
+python:
+  - 3.6
+
+env:
+  - SECRET_KEY=SecretKeyForUseOnTravis
+
+install:
+  - pip install -r requirements.txt
+
+before_script:
+  - python manage.py migrate
+  - python manage.py loaddata fixtures/fixtures.json
+
+script:
+  - python manage.py test
