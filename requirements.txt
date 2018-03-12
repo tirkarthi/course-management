@@ -11,3 +11,4 @@ pytz==2018.3
 PyYAML==3.12
 six==1.11.0
 tornado==4.5.3
+uWSGI==2.0.17
